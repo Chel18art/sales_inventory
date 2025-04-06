@@ -1,0 +1,188 @@
+{% extends 'inventory/base.html' %}
+
+{% block content %}
+    <div class="container">
+        <!-- Horizontal Layout: Add New Category and Category List -->
+        <div class="form-container">
+            <h2>Manage Categories</h2>
+
+            <div class="horizontal-layout">
+                <!-- Form to add a new category -->
+                <div class="form-column">
+                    <form method="POST" class="add-category-form">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <input type="text" name="category_name" placeholder="Enter new category" required class="category-input">
+                        </div>
+                        <div class="form-submit">
+                            <button type="submit" class="btn add-category-btn">Add Category</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Category List Section -->
+                <div class="form-column category-list">
+                    <h3>Category List</h3>
+                    <ul class="category-ul">
+                        {% for category in categories %}
+                            <li class="category-item">
+                                <form method="POST" class="category-edit-form">
+                                    {% csrf_token %}
+                                    <div class="form-group">
+                                        <input type="text" name="category_name" value="{{ category.name }}" required class="category-input">
+                                    </div>
+                                    <input type="hidden" name="edit_id" value="{{ category.id }}">
+                                    <button type="submit" class="btn edit-btn">Edit</button>
+                                </form>
+                                <a href="?delete_id={{ category.id }}" class="btn delete-btn">Delete</a>
+                            </li>
+                        {% empty %}
+                            <li>No categories yet.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        /* General container style */
+        .container {
+            margin-top: 40px;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        .form-container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 1300px;
+            margin-bottom: 30px;
+        }
+
+        .form-container h2, .form-container h3 {
+            font-size: 2rem;
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        /* Flex container for horizontal layout */
+        .horizontal-layout {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        .form-column {
+            width: 48%;
+        }
+
+        /* Input field style */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .category-input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            font-size: 1rem;
+            color: #333;
+            box-sizing: border-box;
+        }
+
+        /* Button styles */
+        .add-category-btn, .edit-btn, .delete-btn {
+            padding: 10px 20px;
+            font-size: 1rem;
+            font-weight: 500;
+            border-radius: 6px;
+            cursor: pointer;
+            border: none;
+            margin-top: 10px;
+            display: inline-block;
+        }
+
+        .add-category-btn {
+            background-color: #008585;
+            color: white;
+        }
+
+        .edit-btn {
+            background-color: #74a892;
+            color: white;
+        }
+
+        .delete-btn {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .add-category-btn:hover {
+            background-color: #004343;
+        }
+
+        .edit-btn:hover {
+            background-color: #3d7263;
+        }
+
+        .delete-btn:hover {
+            background-color: #d32f2f;
+        }
+
+        /* Category List styles */
+        .category-ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .category-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .category-item form {
+            display: inline;
+            flex-grow: 1;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .horizontal-layout {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .form-column {
+                width: 100%;
+            }
+
+            .category-input {
+                font-size: 0.95rem;
+                padding: 10px;
+            }
+
+            .add-category-btn, .edit-btn, .delete-btn {
+                width: 100%;
+                font-size: 1rem;
+                padding: 12px 25px;
+            }
+        }
+    </style>
+{% endblock %}

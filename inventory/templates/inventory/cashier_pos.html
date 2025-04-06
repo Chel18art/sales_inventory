@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cashier POS</title>
+    <style>
+        /* Style for the POS interface */
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f4f4f9;
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        .pos-section {
+            margin-bottom: 40px;
+        }
+
+        input[type="text"], input[type="number"] {
+            padding: 10px;
+            margin: 10px 0;
+            width: 100%;
+            max-width: 250px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .total {
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        #payment-section {
+            margin-top: 30px;
+        }
+
+        #summary-popup {
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            position: fixed;
+            top: 30%;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            display: none;
+        }
+
+        #summary-popup h3 {
+            margin-bottom: 20px;
+        }
+
+        .close-btn {
+            padding: 10px 20px;
+            background-color: red;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .close-btn:hover {
+            background-color: darkred;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- POS Cart Section -->
+    <div class="pos-section">
+        <h1>Cashier POS</h1>
+
+        <!-- Item Input -->
+        <input type="text" id="item-name" placeholder="Start typing item name..." oninput="searchItems()">
+        <input type="number" id="quantity" placeholder="Quantity" min="1">
+        <button onclick="addToCart()">Add to Cart</button>
+
+        <h2>Cart</h2>
+        <table id="cart-table">
+            <thead>
+                <tr>
+                    <th>Item Name</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th>Subtotal</th>
+                    <th>Remove</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Cart items will be dynamically added here -->
+            </tbody>
+        </table>
+
+        <p class="total">Total: $<span id="total-amount">0.00</span></p>
+        <button onclick="checkout()">Checkout</button>
+    </div>
+
+    <!-- Payment Section -->
+    <div id="payment-section" style="display:none;">
+        <label for="payment-received">Payment Received: </label>
+        <input type="number" id="payment-received" placeholder="Enter amount received">
+        <button onclick="submitPayment()">Submit Payment</button>
+    </div>
+
+    <!-- Summary Popup -->
+    <div id="summary-popup">
+        <h3>Order Summary</h3>
+        <p id="order-summary"></p>
+        <button class="close-btn" onclick="closeSummary()">Close</button>
+    </div>
+
+    <script>
+        let cart = [];
+
+        function searchItems() {
+            const itemName = document.getElementById('item-name').value;
+            if (itemName.length >= 2) {
+                // You can implement an API call to fetch items based on search
+                console.log('Searching for items...');
+            }
+        }
+
+        function addToCart() {
+            const itemName = document.getElementById('item-name').value;
+            const quantity = document.getElementById('quantity').value;
+
+            if (!itemName || !quantity) {
+                alert("Please enter item name and quantity");
+                return;
+            }
+
+            const data = {
+                item_name: itemName,  // Assuming this is a valid item name or ID
+                quantity: quantity
+            };
+
+            fetch('/add_to_cart/', {
+                method: 'POST',
+                body: JSON.stringify(data),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(responseData => {
+                if (responseData.success) {
+                    updateCart(responseData.cart); // Update cart with new cart data
+                } else {
+                    alert('Error adding item to cart.');
+                }
+            });
+        }
+
+        function updateCart(cartItems) {
+            cart = cartItems;
+            const cartTableBody = document.getElementById('cart-table').querySelector('tbody');
+            cartTableBody.innerHTML = '';  // Clear the table
+
+            let totalAmount = 0;
+            cart.forEach(item => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.name}</td>
+                    <td>${item.quantity}</td>
+                    <td>$${item.price}</td>
+                    <td>$${(item.price * item.quantity).toFixed(2)}</td>
+                    <td><button onclick="removeFromCart(${item.id})">Remove</button></td>
+                `;
+                cartTableBody.appendChild(row);
+                totalAmount += item.price * item.quantity;
+            });
+
+            document.getElementById('total-amount').textContent = totalAmount.toFixed(2);
+        }
+
+        function removeFromCart(itemId) {
+            cart = cart.filter(item => item.id !== itemId);
+            updateCart(cart);
+        }
+
+        function checkout() {
+            document.getElementById('payment-section').style.display = 'block';
+        }
+
+        function submitPayment() {
+            const paymentReceived = document.getElementById('payment-received').value;
+            const totalAmount = parseFloat(document.getElementById('total-amount').textContent);
+
+            if (!paymentReceived || paymentReceived < totalAmount) {
+                alert("Insufficient payment. Please enter a valid amount.");
+                return;
+            }
+
+            fetch('/checkout/', {
+                method: 'POST',
+                body: JSON.stringify({
+                    payment_received: paymentReceived,
+                    cart: cart
+                }),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    const change = (paymentReceived - totalAmount).toFixed(2);
+                    alert("Change: $" + change);
+                    showSummary(data.orderSummary);
+                }
+            });
+        }
+
+        function showSummary(orderSummary) {
+            const summaryPopup = document.getElementById('summary-popup');
+            const summaryText = document.getElementById('order-summary');
+            summaryText.textContent = orderSummary;
+            summaryPopup.style.display = 'block';
+        }
+
+        function closeSummary() {
+            document.getElementById('summary-popup').style.display = 'none';
+        }
+    </script>
+
+</body>
+</html>

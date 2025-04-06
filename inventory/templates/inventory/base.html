@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <head>
+        <!-- Add FontAwesome -->
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    </head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SST INVENTORY SYSTEM POS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #fbf2c4; /* Soft Yellow */
+            color: #333;
+        }
+
+        header {
+            background-color: #c7522a; /* Strong Orange */
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 30px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            height: 100%;
+            width: 250px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: #004343; /* Dark Teal */
+            padding-top: 20px;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            color: white;
+            padding: 15px;
+            text-decoration: none;
+            font-size: 18px;
+            transition: background-color 0.3s;
+        }
+
+        .sidebar a:hover {
+            background-color: #008585; /* Deep Teal */
+            color: white;
+        }
+
+        .sidebar a.active {
+            background-color: #008585; /* Deep Teal */
+            color: white;
+        }
+
+        .sidebar a i {
+            margin-right: 15px;
+        }
+
+        .container {
+            margin-left: 270px; /* Adjust to make room for the sidebar */
+            padding: 20px;
+        }
+
+        footer {
+            background-color: #004343; /* Dark Teal */
+            color: white;
+            text-align: center;
+            padding: 10px;
+            margin-top: 40px;
+        }
+
+        .btn {
+            background-color: #e5c185; /* Light Yellow */
+            color: #004343; /* Dark Teal */
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn:hover {
+            background-color: #f0daa5; /* Pale Yellow */
+        }
+
+        .form-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 200px;
+                padding-top: 15px;
+            }
+
+            .sidebar a {
+                padding: 12px;
+                font-size: 16px;
+            }
+
+            .container {
+                margin-left: 0;
+                padding: 10px;
+            }
+
+            .btn {
+                padding: 8px 15px;
+                font-size: 14px;
+            }
+
+            .form-container {
+                padding: 15px;
+            }
+
+            footer {
+                font-size: 14px;
+                padding: 8px;
+            }
+        }
+
+        /* Card Styling for the Dashboard */
+        .stat-card, .sales-card {
+            background-color: #b8cdab; /* Soft Green */
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover, .sales-card:hover {
+            background-color: #74a892; /* Muted Teal */
+            transform: translateY(-5px);
+        }
+
+        .stat-card h3, .sales-card h3 {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .stat-card p, .sales-card p {
+            font-size: 1.8rem;
+            font-weight: bold;
+        }
+
+        .stat-card p {
+            color: #c7522a; /* Strong Orange */
+        }
+
+        .sales-card p {
+            color: #008585; /* Deep Teal */
+        }
+
+        /* Grid Layout for Dashboard Stats */
+        .overview-stats, .sales-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 30px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        SST INVENTORY SYSTEM POS
+    </header>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <a href="{% url 'admin_dashboard' %}" class="active"><i class="fas fa-tachometer-alt"></i>Dashboard</a>
+        <a href="{% url 'inventory_management' %}"><i class="fas fa-boxes"></i>Inventory</a>
+        <a href="{% url 'add_item' %}"><i class="fas fa-plus-circle"></i>Add Item</a>
+        <a href="{% url 'sales_report' %}"><i class="fas fa-chart-line"></i>Sales Report</a>
+        <a href="{% url 'category_management' %}"><i class="fas fa-tags"></i>Categories</a>
+        <a href="{% url 'user_management' %}"><i class="fas fa-users"></i>User Management</a>
+        <a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i>Logout</a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+        {% block content %}
+        <!-- Page-specific content will go here -->
+        {% endblock %}
+    </div>
+
+    <footer>
+        <p>&copy; 2025 SST Inventory System POS. All Rights Reserved.</p>
+    </footer>
+
+</body>
+
+</html>

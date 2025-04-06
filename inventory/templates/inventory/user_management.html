@@ -1,0 +1,240 @@
+{% extends 'inventory/base.html' %}
+
+{% load static %}
+
+{% block content %}
+    <div class="container">
+        <!-- Flex container for two columns -->
+        <div class="content-wrapper">
+            <!-- User Management Form (3/4 of the screen) -->
+            <div class="form-container form-left">
+                <h2>User Management</h2>
+                <form method="POST" class="user-management-form">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        {{ form.username.label_tag }}
+                        {{ form.username }}
+                    </div>
+                    <div class="form-group">
+                        {{ form.account_type.label_tag }}
+                        {{ form.account_type }}
+                    </div>
+                    <div class="form-group">
+                        {{ form.password1.label_tag }}
+                        {{ form.password1 }}
+                    </div>
+                    <div class="form-group">
+                        {{ form.password2.label_tag }}
+                        {{ form.password2 }}
+                    </div>
+                    <button type="submit" class="btn submit-btn">Create User</button>
+                </form>
+            </div>
+
+            <!-- User List (1/4 of the screen) -->
+            <div class="user-list form-right">
+                <h3>User List</h3>
+                <div class="table-responsive">
+                    <table class="user-table">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Account Type</th>
+                                <th>Date Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in users %}
+                                <tr>
+                                    <td>{{ user.username }}</td>
+                                    <td>{{ user.account_type }}</td>
+                                    <td>{{ user.date_created }}</td>
+                                    <td>
+                                        <a href="?delete_id={{ user.id }}" class="btn delete-btn">Delete</a>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="4">No users found.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        /* General Container */
+        .container {
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Flexbox layout for content */
+        .content-wrapper {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        /* Form container (left side - 3/4 width) */
+        .form-left {
+            flex: 3;
+        }
+
+        /* User list container (right side - 1/4 width) */
+        .form-right {
+            flex: 1;
+        }
+
+        /* Form Container */
+        .form-container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .form-container h2, .form-container h3 {
+            font-size: 2rem;
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        /* Form Styling */
+        .user-management-form .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            font-size: 1rem;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            margin-top: 8px;
+        }
+
+        .form-group input:focus {
+            border-color: #008585;
+            outline: none;
+        }
+
+        /* Button Styling */
+        .submit-btn {
+            background-color: #008585;
+            color: white;
+            padding: 14px 30px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            border: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            background-color: #004343;
+        }
+
+        /* User List Table */
+        .user-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .user-table thead {
+            background-color: #008585;
+            color: white;
+        }
+
+        .user-table th, .user-table td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .user-table td {
+            font-size: 1rem;
+        }
+
+        .user-table th {
+            font-size: 1.2rem;
+        }
+
+        .user-table tbody tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .user-table tbody tr:nth-child(even) {
+            background-color: #fbf2c4;
+        }
+
+        .user-table tbody tr:nth-child(odd) {
+            background-color: #f0daa5;
+        }
+
+        /* Action Buttons */
+        .btn {
+            padding: 8px 15px;
+            font-size: 1rem;
+            text-decoration: none;
+            border-radius: 4px;
+            cursor: pointer;
+            display: inline-block;
+            margin: 5px;
+        }
+
+        .delete-btn {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .delete-btn:hover {
+            background-color: #d32f2f;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .content-wrapper {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .form-left, .form-right {
+                flex: 1;
+            }
+
+            .user-management-form .form-group input {
+                padding: 10px;
+                font-size: 0.95rem;
+            }
+
+            .submit-btn {
+                font-size: 1rem;
+                padding: 12px 25px;
+            }
+
+            .user-table th, .user-table td {
+                font-size: 0.9rem;
+                padding: 10px;
+            }
+        }
+    </style>
+{% endblock %}
