@@ -39,6 +39,32 @@
                 </div>
             </div>
         </div>
+
+        <div class="sales-overview">
+            <h3>Recent Sales Overview</h3>
+            <table id="recent-sales-table">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Total Amount</th>
+                        <th>Payment Received</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sale in recent_sales %}
+                        <tr>
+                            <td>{{ sale.id }}</td>
+                            <td>{{ sale.customer_name }}</td>
+                            <td>${{ sale.total_amount }}</td>
+                            <td>${{ sale.payment_received }}</td>
+                            <td>{{ sale.status }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <style>
@@ -102,6 +128,31 @@
 
         .stat-card:nth-child(4) p {
             color: #9C27B0; /* Purple for users */
+        }
+
+        .sales-overview {
+            margin-top: 40px;
+        }
+
+        #recent-sales-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        #recent-sales-table th, #recent-sales-table td {
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+
+        #recent-sales-table th {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        #recent-sales-table tbody tr:hover {
+            background-color: #f1f1f1;
         }
     </style>
 {% endblock %}

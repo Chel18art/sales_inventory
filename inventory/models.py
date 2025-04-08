@@ -2,14 +2,16 @@ from django.db import models
 from django.contrib.auth.models import User
 from django import forms
 from django.http import JsonResponse
+
+
 def some_function():
     from .models import Item
 
 # Model for UserProfile
 class UserProfile(models.Model):
     ACCOUNT_TYPES = (
-        ('Admin', 'Admin'),
-        ('Cashier', 'Cashier'),
+        ('Admin', 'admin'),
+        ('Cashier', 'cashier'),
     )
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     account_type = models.CharField(max_length=10, choices=ACCOUNT_TYPES)
@@ -67,27 +69,37 @@ def cashier_pos(request):
     items = Item.objects.all()
     return render(request, 'cashier_pos.html', {'items': items})
 
+
 def add_to_cart(request):
-    item_id = request.POST.get('item_id')
-    quantity = int(request.POST.get('quantity'))
+    import json
 
-    item = Item.objects.get(id=item_id)
-    subtotal = item.price * quantity
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        item_name = data.get('item_name')
+        quantity = int(data.get('quantity', 1))
 
-    cart_item = {
-        'item': item.name,
-        'quantity': quantity,
-        'price': item.price,
-        'subtotal': subtotal
-    }
+        try:
+            item = Item.objects.get(name=item_name)
+        except Item.DoesNotExist:
+            return JsonResponse({'success': False, 'message': 'Item not found'})
 
-    if 'cart' not in request.session:
-        request.session['cart'] = []
+        subtotal = float(item.price) * quantity
+        cart_item = {
+            'name': item.name,
+            'quantity': quantity,
+            'price': float(item.price),
+            'subtotal': subtotal
+        }
 
-    request.session['cart'].append(cart_item)
-    request.session.modified = True
+        if 'cart' not in request.session:
+            request.session['cart'] = []
 
-    return JsonResponse({'message': 'Item added to cart', 'cart': request.session['cart']})
+        request.session['cart'].append(cart_item)
+        request.session.modified = True
+
+        return JsonResponse({'success': True, 'cart': request.session['cart']})
+    
+    return JsonResponse({'success': False, 'message': 'Invalid request method'})
 
 def checkout(request):
     if request.method == "POST":
@@ -139,3 +151,37 @@ def sales_report(request):
         'total_sales': total_sales,
         'selected_period': period
     })
+
+class CartItem(models.Model):
+    item = models.ForeignKey(Item, on_delete=models.CASCADE)
+    quantity = models.IntegerField(default=1)
+
+    def __str__(self):
+        return f'{self.item.name} (x{self.quantity})'
+    
+def search_item(request, name):
+    try:
+        items = Item.objects.filter(name__icontains=name)
+        item_list = [{
+            'id': item.id,
+            'name': item.name,
+            'price': float(item.price),
+            'quantity': item.quantity
+        } for item in items]
+        return JsonResponse({'items': item_list})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+def remove_from_cart(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            item_id = data.get('item_id')
+            # Assuming cart is stored in session
+            cart = request.session.get('cart', [])
+            cart = [item for item in cart if item['id'] != item_id]  # Remove the item with the given ID
+            request.session['cart'] = cart  # Save the updated cart back to the session
+            return JsonResponse({'success': True})
+        except Exception as e:
+            print("Error while removing item:", e)
+            return JsonResponse({'success': False, 'message': 'Error removing item from cart'})
